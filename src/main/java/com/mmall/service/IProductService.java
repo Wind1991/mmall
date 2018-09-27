@@ -2,6 +2,7 @@ package com.mmall.service;
 
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Product;
+import com.mmall.vo.ProductDetailVo;
 
 /**
  * @auther 李明浩
@@ -9,4 +10,6 @@ import com.mmall.pojo.Product;
  */
 public interface IProductService {
     ServerResponse saveOrUpdateProduct(Product product);
+    ServerResponse setSaleStatus(Integer productId,Integer status);
+    ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
 }
