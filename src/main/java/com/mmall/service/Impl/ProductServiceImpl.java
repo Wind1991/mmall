@@ -1,5 +1,8 @@
 package com.mmall.service.Impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
@@ -10,9 +13,13 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -104,4 +111,57 @@ public class ProductServiceImpl implements IProductService {
         productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
         return productDetailVo;
     }
+
+    public ServerResponse<PageInfo> getProductList(Integer pageNum,Integer pageSize){
+        //pagehelper start
+        //sql
+        //pagehelper收尾
+        PageHelper.startPage(pageNum,pageSize);
+        //把选出来的产品放到产品List里面
+        List<Product> productList = productMapper.selectProduct();
+        //新建一个产品新视图的list
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        //遍历产品list
+        for(Product productItem : productList){
+            //把每个产品都组装成一个新的产品vo
+            ProductListVo productListVo = assembelProductListVo(productItem);
+            //把每个新组装成的vo都放到一个volist中
+            productListVoList.add(productListVo);
+        }
+        //声明一个结果集存放产品
+        PageInfo pageResult = new PageInfo(productList);
+        //把产品组装的新的产品volist放进去
+        pageResult.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+    private ProductListVo assembelProductListVo(Product product){
+        ProductListVo productListVo = new ProductListVo();
+        productListVo.setId(product.getId());
+        productListVo.setName(product.getName());
+        productListVo.setCategoryId(product.getCategoryId());
+        productListVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://img.happymmall.com/"));
+        productListVo.setMainImage(product.getMainImage());
+        productListVo.setPrice(product.getPrice());
+        productListVo.setSubtitle(product.getSubtitle());
+        productListVo.setStatus(product.getStatus());
+        return productListVo;
+    }
+
+    public ServerResponse<PageInfo> searchProduct(String productName,Integer productId,Integer pageNum,Integer pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Product> productList = Lists.newArrayList();
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        if(StringUtils.isNotBlank(productName)) {
+            productName = new StringBuilder().append("%").append(productName).append("%").toString();
+            }
+        productList = productMapper.selectselectByNameAndProductId(productName,productId);
+        for(Product productItem : productList){
+            ProductListVo productListVo = assembelProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageInfo = new PageInfo(productListVoList);
+        pageInfo.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
 }
