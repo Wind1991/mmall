@@ -4,7 +4,6 @@ import com.github.pagehelper.PageInfo;
 import com.mmall.common.ServerResponse;
 import com.mmall.service.IProductService;
 import com.mmall.vo.ProductDetailVo;
-import com.mmall.vo.ProductListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,11 +25,16 @@ public class ProductController {
     public ServerResponse<ProductDetailVo> detail(Integer productId){
         return iProductService.getProductDetail(productId);
     }
-    public IProductService<PageInfo> List(@RequestParam(value = "keyword",required = false)String keyword,
+    //用户搜索的时候获取产品结果
+
+    @RequestMapping("list.do")
+    @ResponseBody
+    //keyword为用户搜索的时候填写的搜索信息
+    public ServerResponse<PageInfo> List(@RequestParam(value = "keyword",required = false)String keyword,
                                           @RequestParam(value = "categoryId",required = false)Integer categoryId,
-                                          @RequestParam(value = "pageNum",defaultValue = 1)Integer pageNum,
-                                          @RequestParam(value = "pageSize",defaultValue = 10)Integer pageSize){
-
-
+                                          @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
+                                          @RequestParam(value = "pageSize",defaultValue = "10")Integer pageSize,
+                                          @RequestParam(value = "orderBy",defaultValue = "")String orderBy){
+        return iProductService.getProductByKeywordCategory(keyword,categoryId,pageNum,pageSize,orderBy);
     }
 }

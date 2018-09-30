@@ -1,7 +1,10 @@
 package com.mmall.common;
 
+import com.google.common.collect.Sets;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+
+import java.util.Set;
 
 /**
  * @auther 李明浩
@@ -16,6 +19,11 @@ public class Const {
         int ROLE_CUSTOMER = 0;//普通用户
         int ROLE_ADMIN = 1;//管理员
     }
+
+    public interface ProductListOrderBy{
+        Set<String> PRICE_ASC_DESC = Sets.newHashSet("price_desc","price_asc");
+    }
+    //常量类
     public enum ProductStatusEnum{
         ON_SALE(1,"在线");
         private String value;
