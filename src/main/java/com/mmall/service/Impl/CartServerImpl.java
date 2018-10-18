@@ -50,8 +50,7 @@ public class CartServerImpl implements ICartService {
             cart.setQuantity(count);
             cartMapper.updateByPrimaryKeySelective(cart);
         }
-        CartVo cartVo = this.getCartVoLimit(userId);
-        return ServerResponse.createBySuccess(cartVo);
+        return this.list(userId);
     }
 
     public ServerResponse<CartVo> update(Integer userId,Integer productId,Integer count){
@@ -63,8 +62,7 @@ public class CartServerImpl implements ICartService {
             cart.setQuantity(count);
         }
         cartMapper.updateByPrimaryKeySelective(cart);
-        CartVo cartVo = this.getCartVoLimit(userId);
-        return ServerResponse.createBySuccess(cartVo);
+        return this.list(userId);
     }
     public ServerResponse<CartVo> deleteProduct(Integer userId,String products){
         List<String> productList = Splitter.on(",").splitToList(products);
@@ -72,11 +70,24 @@ public class CartServerImpl implements ICartService {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
         cartMapper.deleteByUserIdProductIds(userId,productList);
+        return this.list(userId);
+    }
+    public ServerResponse<CartVo> list(Integer userId){
         CartVo cartVo = this.getCartVoLimit(userId);
         return ServerResponse.createBySuccess(cartVo);
     }
 
+    public ServerResponse<CartVo> selectAllUnSelect(Integer userId,Integer productId,Integer checked){
+        cartMapper.checkedOrUncheckedProduct(userId,productId,checked);
+        return this.list(userId);
+    }
 
+    public ServerResponse<Integer> getCartProductCount(Integer userId){
+        if(userId == null){
+            return ServerResponse.createBySuccess(0);
+        }
+        return ServerResponse.createBySuccess(cartMapper.selectCartProductCount(userId));
+    }
 
     private CartVo getCartVoLimit(Integer userId){
         CartVo cartVo = new CartVo();
